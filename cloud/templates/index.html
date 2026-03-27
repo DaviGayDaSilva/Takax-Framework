@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takax - Create Linux OS via Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-green: #3fb950;
+            --accent-cyan: #58a6ff;
+            --accent-orange: #d29922;
+            --accent-red: #f85149;
+            --border-color: #30363d;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        /* Main Container */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .sidebar-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .template-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .template-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .template-item:hover {
+            border-color: var(--accent-cyan);
+        }
+        
+        .template-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .template-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .message-user {
+            background: var(--bg-tertiary);
+            align-self: flex-end;
+            border: 1px solid var(--border-color);
+        }
+        
+        .message-bot {
+            background: var(--bg-secondary);
+            align-self: flex-start;
+            border: 1px solid var(--border-color);
+        }
+        
+        .message-system {
+            background: rgba(88, 166, 255, 0.1);
+            align-self: center;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            text-align: center;
+        }
+        
+        .message-content {
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        /* Build Plan */
+        .build-plan {
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+        
+        .build-plan-title {
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .build-plan-item {
+            display: flex;
+            gap: 0.5rem;
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+        }
+        
+        /* Input Area */
+        .input-area {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .input-field {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            resize: none;
+            font-family: inherit;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+        
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .send-btn {
+            background: var(--accent-green);
+            border: none;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .send-btn:hover {
+            background: #2ea043;
+            transform: translateY(-1px);
+        }
+        
+        .send-btn:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Terminal Panel */
+        .terminal-panel {
+            width: 50%;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .terminal-header {
+            background: var(--bg-tertiary);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .terminal-title {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .terminal-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+        }
+        
+        .terminal-status.disconnected {
+            background: var(--accent-red);
+        }
+        
+        .terminal-container {
+            flex: 1;
+            background: #000;
+            padding: 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            overflow: auto;
+        }
+        
+        #terminal {
+            height: 100%;
+        }
+        
+        /* Loading Animation */
+        .typing-indicator {
+            display: flex;
+            gap: 0.25rem;
+            padding: 0.5rem;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .terminal-panel {
+                display: none;
+            }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">T</div>
+            <span class="logo-text">Takax</span>
+        </div>
+        <nav class="header-nav">
+            <button class="nav-btn" onclick="showProjects()">Projects</button>
+            <button class="nav-btn" onclick="showTerminal()">Terminal</button>
+            <button class="nav-btn" onclick="showDocs()">Docs</button>
+        </nav>
+    </header>
+    
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-title">Templates</div>
+            <div class="template-list">
+                <div class="template-item" onclick="useTemplate('debian-minimal')">
+                    <div class="template-name">Debian Minimal</div>
+                    <div class="template-desc">Minimal Debian base system</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('ubuntu-server')">
+                    <div class="template-name">Ubuntu Server</div>
+                    <div class="template-desc">Server with SSH & common tools</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('debian-python')">
+                    <div class="template-name">Debian Python</div>
+                    <div class="template-desc">Python dev environment</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('alpine-minimal')">
+                    <div class="template-name">Alpine Minimal</div>
+                    <div class="template-desc">Ultra-light Alpine Linux</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('docker-host')">
+                    <div class="template-name">Docker Host</div>
+                    <div class="template-desc">System with Docker support</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('web-server')">
+                    <div class="template-name">Web Server</div>
+                    <div class="template-desc">Nginx + PHP + MariaDB</div>
+                </div>
+            </div>
+        </aside>
+        
+        <main class="chat-area">
+            <div class="messages-container" id="messages">
+                <div class="message message-bot">
+                    <div class="message-content">👋 Welcome to **Takax**!
+
+I help you create custom Linux operating systems through natural language.
+
+**Getting Started:**
+• Tell me what you want: "Create a minimal Debian with Python"
+• Choose a template from the sidebar
+• Or describe your ideal system
+
+What would you like to build?</div>
+                    <div class="message-time">System</div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <textarea 
+                    class="input-field" 
+                    id="messageInput" 
+                    placeholder="Describe your OS... (e.g., 'Create Ubuntu with Docker and SSH')"
+                    rows="1"
+                ></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+            </div>
+        </main>
+        
+        <div class="terminal-panel">
+            <div class="terminal-header">
+                <div class="terminal-title">
+                    <span class="terminal-status" id="terminalStatus"></span>
+                    Terminal
+                </div>
+                <button class="nav-btn" onclick="connectTerminal()">Connect</button>
+            </div>
+            <div class="terminal-container">
+                <div id="terminal"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State
+        let ws = null;
+        let sessionId = null;
+        let isConnected = false;
+        const messages = [];
+        
+        // DOM Elements
+        const messageInput = document.getElementById('messageInput');
+        const messagesContainer = document.getElementById('messages');
+        const sendBtn = document.getElementById('sendBtn');
+        
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+        });
+        
+        // Send on Enter (Shift+Enter for newline)
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Send message
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            // Show typing indicator
+            showTyping();
+            
+            // Send to API
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        message: message,
+                        session_id: sessionId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove typing and add response
+                removeTyping();
+                
+                if (data.response) {
+                    addMessage(data.response, 'bot');
+                    
+                    // If build plan, add to terminal
+                    if (data.analysis && data.analysis.action === 'build') {
+                        addBuildPlan(data.analysis);
+                    }
+                }
+                
+                sessionId = data.session_id;
+            } catch (error) {
+                removeTyping();
+                addMessage('Error: ' + error.message, 'system');
+            }
+        }
+        
+        function addMessage(content, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message message-${type}`;
+            msgDiv.innerHTML = `
+                <div class="message-content">${escapeHtml(content)}</div>
+                <div class="message-time">${new Date().toLocaleTimeString()}</div>
+            `;
+            messagesContainer.appendChild(msgDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function addBuildPlan(analysis) {
+            const planDiv = document.createElement('div');
+            planDiv.className = 'build-plan';
+            planDiv.innerHTML = `
+                <div class="build-plan-title">🎯 Build Plan</div>
+                <div class="build-plan-item">
+                    <span>📦 <strong>Distribution:</strong> ${capitalize(analysis.detected_distro || 'debian')}</span>
+                </div>
+                ${analysis.components && analysis.components.length > 0 ? `
+                <div class="build-plan-item">
+                    <span>🛠️ <strong>Components:</strong> ${analysis.components.join(', ')}</span>
+                </div>
+                ` : ''}
+                <div class="build-plan-item">
+                    <button class="nav-btn" style="margin-top: 0.5rem" onclick="startBuild()">▶ Start Build</button>
+                </div>
+            `;
+            messagesContainer.appendChild(planDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'message message-bot';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function removeTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+        
+        function useTemplate(name) {
+            messageInput.value = `Create a ${name.replace('-', ' ')} system`;
+            messageInput.focus();
+        }
+        
+        function startBuild() {
+            addMessage('🔧 Starting build process...', 'system');
+            // Simulate build progress
+            setTimeout(() => addMessage('📦 Downloading base packages...', 'system'), 500);
+            setTimeout(() => addMessage('⚙️ Configuring system...', 'system'), 1500);
+            setTimeout(() => addMessage('🛠️ Installing components...', 'system'), 2500);
+            setTimeout(() => addMessage('✅ Build completed successfully!', 'system'), 3500);
+        }
+        
+        // Terminal WebSocket
+        function connectTerminal() {
+            if (ws) {
+                ws.close();
+                return;
+            }
+            
+            ws = new WebSocket(`ws://${window.location.host}/ws/terminal`);
+            
+            ws.onopen = () => {
+                isConnected = true;
+                document.getElementById('terminalStatus').classList.remove('disconnected');
+                addSystemMessage('🔗 Terminal connected');
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'system') {
+                    addSystemMessage(data.content);
+                } else if (data.type === 'output') {
+                    appendTerminalOutput(data.content);
+                }
+            };
+            
+            ws.onclose = () => {
+                isConnected = false;
+                document.getElementById('terminalStatus').classList.add('disconnected');
+                addSystemMessage('❌ Terminal disconnected');
+            };
+            
+            ws.onerror = (error) => {
+                addSystemMessage('⚠️ Terminal error');
+            };
+        }
+        
+        function addSystemMessage(content) {
+            const msgDiv = document.createElement('div');
+            msgDiv.style.color = '#58a6ff';
+            msgDiv.style.padding = '0.5rem';
+            document.getElementById('terminal').appendChild(msgDiv);
+        }
+        
+        function appendTerminalOutput(content) {
+            const termDiv = document.getElementById('terminal');
+            const pre = document.createElement('pre');
+            pre.textContent = content;
+            pre.style.margin = '0';
+            pre.style.whiteSpace = 'pre-wrap';
+            termDiv.appendChild(pre);
+        }
+        
+        // Helpers
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        
+        // Navigation
+        function showProjects() {
+            window.location.href = '/projects';
+        }
+        
+        function showTerminal() {
+            window.location.href = '/terminal';
+        }
+        
+        function showDocs() {
+            window.location.href = '/docs';
+        }
+        
+        // Initialize terminal connection
+        connectTerminal();
+    </script>
+</body>
+</html>

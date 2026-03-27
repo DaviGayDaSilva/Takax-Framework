@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takax Framework - Create Linux OS via Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-green: #3fb950;
+            --accent-cyan: #58a6ff;
+            --accent-purple: #a371f7;
+            --border-color: #30363d;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .logo-text {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        nav {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        nav a:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+        
+        .github-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .github-btn:hover {
+            border-color: var(--text-secondary);
+        }
+        
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .badge {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: #2ea043;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            transform: translateY(-2px);
+        }
+        
+        /* Features */
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.2s;
+        }
+        
+        .feature-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Products */
+        .products {
+            padding: 4rem 2rem;
+            background: var(--bg-secondary);
+        }
+        
+        .products-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .product-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+        }
+        
+        .product-card:hover {
+            border-color: var(--accent-cyan);
+        }
+        
+        .product-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        /* Code Example */
+        .code-section {
+            padding: 4rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .code-block {
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            text-align: left;
+        }
+        
+        .code-block pre {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .code-block .keyword {
+            color: var(--accent-purple);
+        }
+        
+        .code-block .string {
+            color: var(--accent-green);
+        }
+        
+        .code-block .comment {
+            color: var(--text-secondary);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        
+        footer a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">
+            <div class="logo-icon">T</div>
+            <span class="logo-text">Takax</span>
+        </a>
+        <nav>
+            <a href="#features">Features</a>
+            <a href="#products">Products</a>
+            <a href="#code">Code</a>
+        </nav>
+        <a href="https://github.com/DaviGayDaSilva/Takax-Framework" class="github-btn" target="_blank">
+            ⭐ Star on GitHub
+        </a>
+    </header>
+    
+    <section class="hero">
+        <h1>Create Linux OS<br><span>Via Chat</span></h1>
+        <p>Takax is an open-source framework that enables you to create custom Linux operating systems through natural language conversations, powered by Devstral AI.</p>
+        
+        <div class="hero-badges">
+            <span class="badge">🤖 AI-Powered</span>
+            <span class="badge">🐧 Linux</span>
+            <span class="badge">📦 Open Source</span>
+            <span class="badge">⚡ Real-time</span>
+        </div>
+        
+        <div class="cta-buttons">
+            <a href="#products" class="btn btn-primary">Get Started</a>
+            <a href="https://github.com/DaviGayDaSilva/Takax-Framework" class="btn btn-secondary" target="_blank">View on GitHub</a>
+        </div>
+    </section>
+    
+    <section class="features" id="features">
+        <h2 class="section-title">✨ Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Chat-to-OS</h3>
+                <p>Create Linux systems using natural language descriptions. Just describe what you need!</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🖥️</div>
+                <h3>Real-time Terminal</h3>
+                <p>Watch the build process in real-time with live terminal output display.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📦</div>
+                <h3>Sandbox Isolation</h3>
+                <p>Build safely in isolated sandbox environments using Docker or chroot.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>Multiple Interfaces</h3>
+                <p>CLI for terminal, Web UI for browser, and SDK for programmatic usage.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Devstral AI</h3>
+                <p>Powered by Devstral AI for intelligent natural language understanding.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>Templates</h3>
+                <p>Pre-built templates for common configurations like Docker hosts, Python dev, and more.</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="products" id="products">
+        <div class="products-inner">
+            <h2 class="section-title">🚀 Products</h2>
+            <div class="products-grid">
+                <a href="https://github.com/DaviGayDaSilva/Takax-Framework/tree/main/cli" class="product-card">
+                    <h3>🖥️ CLI Version</h3>
+                    <p>Command-line interface for terminal-based interaction with interactive chat mode.</p>
+                </a>
+                <a href="https://github.com/DaviGayDaSilva/Takax-Framework/tree/main/cloud" class="product-card">
+                    <h3>☁️ Cloud Version</h3>
+                    <p>Web-based interface with real-time terminal via WebSocket. Runs with FastAPI.</p>
+                </a>
+                <a href="https://github.com/DaviGayDaSilva/Takax-Framework/tree/main/sdk" class="product-card">
+                    <h3>🐍 SDK</h3>
+                    <p>Python library for programmatic OS creation. Import and use in your code.</p>
+                </a>
+                <a href="https://github.com/DaviGayDaSilva/Takax-Framework/tree/main/sandbox" class="product-card">
+                    <h3>🔒 Sandbox System</h3>
+                    <p>Isolated build environment manager with caching and resource limits.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <section class="code-section" id="code">
+        <h2 class="section-title">💻 Quick Start</h2>
+        
+        <div class="code-block">
+            <pre><span class="comment"># CLI - Interactive mode</span>
+python -m cli.main
+
+<span class="comment"># CLI - Build from description</span>
+python -m cli.main -d "Create minimal Debian with Python and SSH"
+
+<span class="comment"># CLI - Use template</span>
+python -m cli.main -t debian-python</pre>
+        </div>
+        <br>
+        <div class="code-block">
+            <pre><span class="comment"># SDK - Python usage</span>
+<span class="keyword">from</span> sdk <span class="keyword">import</span> TakaxClient
+
+client = TakaxClient()
+result = client.create_os(
+    description=<span class="string">"Minimal Debian with Python and SSH"</span>,
+    output_format=<span class="string">"chroot"</span>
+)
+
+<span class="keyword">print</span>(<span class="string">f"Build complete: </span>{result.output_path}<span class="string">"</span>)</pre>
+        </div>
+        <br>
+        <div class="code-block">
+            <pre><span class="comment"># Environment variables for Devstral AI</span>
+<span class="keyword">export</span> DEVSTRAL_API_KEY=<span class="string">"your-api-key"</span>
+<span class="keyword">export</span> DEVSTRAL_MODEL=<span class="string">"devstral"</span></pre>
+        </div>
+    </section>
+    
+    <footer>
+        <p>Takax Framework v1.0.0 - Open Source under MIT License</p>
+        <p>Powered by Devstral AI</p>
+        <p><a href="https://github.com/DaviGayDaSilva/Takax-Framework">GitHub</a> | <a href="https://github.com/DaviGayDaSilva/Takax-Framework/issues">Issues</a></p>
+    </footer>
+</body>
+</html>
