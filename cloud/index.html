@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takax Cloud - Create Linux OS via Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-green: #3fb950;
+            --accent-cyan: #58a6ff;
+            --accent-purple: #a371f7;
+            --accent-orange: #d29922;
+            --accent-red: #f85149;
+            --border-color: #30363d;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+        }
+        
+        .sidebar-title {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+        
+        .template-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .template-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .template-item:hover {
+            border-color: var(--accent-cyan);
+            background: var(--bg-primary);
+        }
+        
+        .template-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .template-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            max-width: 85%;
+            padding: 1rem;
+            border-radius: 12px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-user {
+            background: var(--bg-tertiary);
+            align-self: flex-end;
+            border: 1px solid var(--border-color);
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-bot {
+            background: var(--bg-secondary);
+            align-self: flex-start;
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        .message-avatar {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+        
+        /* Build Plan */
+        .build-plan {
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.75rem;
+        }
+        
+        .build-plan-title {
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .build-plan-item {
+            display: flex;
+            gap: 0.5rem;
+            margin: 0.4rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .build-plan-item span {
+            color: var(--text-secondary);
+        }
+        
+        .build-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-action {
+            background: var(--accent-green);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-action:hover {
+            background: #2ea043;
+        }
+        
+        .btn-action.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-action.secondary:hover {
+            border-color: var(--text-secondary);
+        }
+        
+        /* Input Area */
+        .input-area {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .input-field {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            resize: none;
+            font-family: inherit;
+            min-height: 50px;
+            max-height: 150px;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+        
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .send-btn {
+            background: var(--accent-green);
+            border: none;
+            color: white;
+            width: 50px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-btn:hover {
+            background: #2ea043;
+            transform: scale(1.05);
+        }
+        
+        .send-btn:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Terminal Panel */
+        .terminal-panel {
+            width: 45%;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            background: #0a0a0a;
+        }
+        
+        .terminal-header {
+            background: var(--bg-tertiary);
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        .terminal-title {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .terminal-status {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-green);
+        }
+        
+        .terminal-container {
+            flex: 1;
+            padding: 1rem;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            overflow: auto;
+            color: #00ff00;
+            line-height: 1.5;
+        }
+        
+        .terminal-line {
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .terminal-prompt {
+            color: var(--accent-cyan);
+        }
+        
+        .terminal-success {
+            color: var(--accent-green);
+        }
+        
+        .terminal-error {
+            color: var(--accent-red);
+        }
+        
+        .terminal-info {
+            color: var(--text-secondary);
+        }
+        
+        /* Loading */
+        .typing {
+            display: flex;
+            gap: 0.25rem;
+            padding: 0.5rem;
+        }
+        
+        .typing span {
+            width: 6px;
+            height: 6px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+        
+        .typing span:nth-child(1) { animation-delay: -0.32s; }
+        .typing span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .terminal-panel { display: none; }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="index.html" class="logo">
+            <div class="logo-icon">T</div>
+            <span class="logo-text">Takax Cloud</span>
+        </a>
+        <div class="header-status">
+            <span class="status-dot"></span>
+            <span>☁️ Cloud Mode</span>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-title">📋 Templates</div>
+            <div class="template-list">
+                <div class="template-item" onclick="useTemplate('debian-minimal')">
+                    <div class="template-name">Debian Minimal</div>
+                    <div class="template-desc">Base system</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('ubuntu-server')">
+                    <div class="template-name">Ubuntu Server</div>
+                    <div class="template-desc">SSH, curl, vim</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('debian-python')">
+                    <div class="template-name">Debian Python</div>
+                    <div class="template-desc">Python dev env</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('alpine-minimal')">
+                    <div class="template-name">Alpine Minimal</div>
+                    <div class="template-desc">Ultra-light</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('docker-host')">
+                    <div class="template-name">Docker Host</div>
+                    <div class="template-desc">Docker support</div>
+                </div>
+                <div class="template-item" onclick="useTemplate('web-server')">
+                    <div class="template-name">Web Server</div>
+                    <div class="template-desc">Nginx + Python</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-title" style="margin-top: 1rem;">💡 Examples</div>
+            <div class="template-list">
+                <div class="template-item" onclick="useExample('python')">
+                    <div class="template-name">Python + SSH</div>
+                    <div class="template-desc">Dev environment</div>
+                </div>
+                <div class="template-item" onclick="useExample('docker')">
+                    <div class="template-name">Docker + Compose</div>
+                    <div class="template-desc">Container platform</div>
+                </div>
+                <div class="template-item" onclick="useExample('web')">
+                    <div class="template-name">Nginx + Node</div>
+                    <div class="template-desc">Web stack</div>
+                </div>
+            </div>
+        </aside>
+        
+        <main class="chat-area">
+            <div class="messages-container" id="messages">
+                <div class="message message-bot">
+                    <span class="message-avatar">🤖</span>
+                    <div class="message-content">
+👋 Welcome to <strong>Takax Cloud</strong>!
+
+I help you create custom Linux operating systems through natural language.
+
+<strong>Try saying:</strong>
+• "Create a minimal Debian with Python"
+• "Build Ubuntu server with Docker and SSH"
+• "Generate Arch Linux with nginx"
+
+Or use a template from the sidebar! 🚀</div>
+                    <div class="message-time">System</div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <textarea 
+                    class="input-field" 
+                    id="messageInput" 
+                    placeholder="Describe your OS... (e.g., 'Create Ubuntu with Docker and SSH')"
+                    rows="1"
+                ></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+            </div>
+        </main>
+        
+        <div class="terminal-panel">
+            <div class="terminal-header">
+                <div class="terminal-title">
+                    <span class="terminal-status"></span>
+                    Terminal
+                </div>
+                <span style="color: var(--text-secondary); font-size: 0.75rem;">Build Output</span>
+            </div>
+            <div class="terminal-container" id="terminal">
+                <div class="terminal-line terminal-info">$ Takax Cloud Terminal Ready</div>
+                <div class="terminal-line terminal-info">$ Waiting for build commands...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State
+        let isBuilding = false;
+        let currentBuildPlan = null;
+        
+        // DOM Elements
+        const messageInput = document.getElementById('messageInput');
+        const messagesContainer = document.getElementById('messages');
+        const sendBtn = document.getElementById('sendBtn');
+        const terminal = document.getElementById('terminal');
+        
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+        });
+        
+        // Send on Enter
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || isBuilding) return;
+            
+            addMessage(message, 'user');
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            showTyping();
+            
+            setTimeout(() => {
+                removeTyping();
+                processMessage(message);
+            }, 800);
+        }
+        
+        function processMessage(message) {
+            const lower = message.toLowerCase();
+            
+            // Check for build keywords
+            const buildKeywords = ['create', 'build', 'make', 'generate', 'setup', 'make'];
+            
+            if (buildKeywords.some(kw => lower.includes(kw))) {
+                // Parse the request
+                const analysis = analyzeRequest(message);
+                currentBuildPlan = analysis;
+                
+                // Show build plan
+                showBuildPlan(analysis);
+                
+                // Add terminal output
+                addTerminalLine(`$ Processing: "${message}"`, 'prompt');
+                addTerminalLine(`$ Detected distro: ${analysis.distro}`, 'info');
+                if (analysis.packages.length > 0) {
+                    addTerminalLine(`$ Packages: ${analysis.packages.join(', ')}`, 'info');
+                }
+                
+            } else {
+                // Just conversation
+                const responses = [
+                    "I can help you create a custom Linux OS! Try saying something like:\n• 'Create a minimal Debian with Python'\n• 'Build Ubuntu with Docker and SSH'",
+                    "Sure! Just describe what Linux system you want. For example:\n• 'Create Debian with Python and nginx'\n• 'Build Alpine minimal with Docker'",
+                    "I'm ready to help! Tell me what OS you want to create, for instance:\n• 'Generate Ubuntu server with Docker'\n• 'Make Debian with SSH and Python'"
+                ];
+                
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                addMessage(response, 'bot');
+                
+                addTerminalLine(`$ Chat: "${message}"`, 'info');
+                addTerminalLine(`$ Response generated`, 'info');
+            }
+        }
+        
+        function analyzeRequest(message) {
+            const lower = message.toLowerCase();
+            
+            // Detect distro
+            let distro = 'debian';
+            if (lower.includes('ubuntu')) distro = 'ubuntu';
+            else if (lower.includes('arch')) distro = 'arch';
+            else if (lower.includes('fedora')) distro = 'fedora';
+            else if (lower.includes('alpine')) distro = 'alpine';
+            
+            // Detect packages
+            const packages = [];
+            if (lower.includes('python') || lower.includes('python3')) packages.push('python3');
+            if (lower.includes('docker')) packages.push('docker.io');
+            if (lower.includes('ssh') || lower.includes('openssh')) packages.push('openssh-server');
+            if (lower.includes('nginx')) packages.push('nginx');
+            if (lower.includes('node') || lower.includes('nodejs')) packages.push('nodejs');
+            if (lower.includes('git')) packages.push('git');
+            if (lower.includes('vim')) packages.push('vim');
+            if (lower.includes('curl')) packages.push('curl');
+            
+            // Detect type
+            let osType = 'minimal';
+            if (lower.includes('server')) osType = 'server';
+            else if (lower.includes('desktop') || lower.includes('gui')) osType = 'desktop';
+            else if (lower.includes('dev') || lower.includes('development')) osType = 'development';
+            
+            return { distro, packages, osType, original: message };
+        }
+        
+        function showBuildPlan(analysis) {
+            const packagesText = analysis.packages.length > 0 
+                ? analysis.packages.join(', ') 
+                : 'None (minimal)';
+            
+            const buildPlan = `
+<div class="build-plan">
+    <div class="build-plan-title">🎯 Build Plan</div>
+    <div class="build-plan-item">📦 <span><strong>Distribution:</strong> ${analysis.distro.charAt(0).toUpperCase() + analysis.distro.slice(1)}</span></div>
+    <div class="build-plan-item">🖥️ <span><strong>Type:</strong> ${analysis.osType.charAt(0).toUpperCase() + analysis.osType.slice(1)}</span></div>
+    <div class="build-plan-item">📚 <span><strong>Packages:</strong> ${packagesText}</span></div>
+    <div class="build-actions">
+        <button class="btn-action" onclick="startBuild()">🚀 Start Build</button>
+        <button class="btn-action secondary" onclick="modifyBuild()">✏️ Modify</button>
+    </div>
+</div>`;
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message message-bot';
+            msgDiv.innerHTML = `
+                <span class="message-avatar">🤖</span>
+                <div class="message-content">
+I've analyzed your request and created a build plan:
+
+${buildPlan}
+</div>
+                <div class="message-time">${new Date().toLocaleTimeString()}</div>
+            `;
+            messagesContainer.appendChild(msgDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function startBuild() {
+            if (!currentBuildPlan || isBuilding) return;
+            
+            isBuilding = true;
+            sendBtn.disabled = true;
+            
+            addTerminalLine('', 'info');
+            addTerminalLine('$ ════════════════════════════════════════', 'prompt');
+            addTerminalLine('$ 🚀 Starting OS Build Process', 'success');
+            addTerminalLine('$ ════════════════════════════════════════', 'prompt');
+            
+            const steps = [
+                { msg: 'Preparing sandbox environment', time: 500 },
+                { msg: 'Downloading base system', time: 800 },
+                { msg: 'Extracting packages', time: 600 },
+                { msg: 'Installing system packages', time: 1200 },
+                { msg: 'Configuring Linux kernel', time: 400 },
+                { msg: 'Setting up networking', time: 300 },
+                { msg: 'Creating build artifacts', time: 500 },
+                { msg: 'Finalizing build', time: 400 }
+            ];
+            
+            let progress = 0;
+            let stepIndex = 0;
+            
+            const runStep = () => {
+                if (stepIndex >= steps.length) {
+                    // Build complete
+                    isBuilding = false;
+                    sendBtn.disabled = false;
+                    
+                    addTerminalLine('', 'info');
+                    addTerminalLine('$ ════════════════════════════════════════', 'prompt');
+                    addTerminalLine('$ ✅ Build Completed Successfully!', 'success');
+                    addTerminalLine('$ 📦 Output: /output/takax-os', 'info');
+                    addTerminalLine('$ ════════════════════════════════════════', 'prompt');
+                    
+                    addMessage(`🎉 **Build Complete!**\n\nYour custom Linux OS has been created successfully!\n\n**Details:**\n- Distribution: ${currentBuildPlan.distro}\n- Type: ${currentBuildPlan.osType}\n- Packages: ${currentBuildPlan.packages.join(', ') || 'minimal'}\n\nYou can now download and use your custom OS!`, 'bot');
+                    
+                    currentBuildPlan = null;
+                    return;
+                }
+                
+                const step = steps[stepIndex];
+                progress = ((stepIndex + 1) / steps.length) * 100;
+                
+                addTerminalLine(`$ 📦 ${step.msg}...`, 'info');
+                
+                stepIndex++;
+                setTimeout(runStep, step.time);
+            };
+            
+            runStep();
+        }
+        
+        function modifyBuild() {
+            addMessage("What would you like to change? You can:\n• Add/remove packages\n• Change distribution\n• Modify OS type", 'bot');
+            addTerminalLine('$ Waiting for modifications...', 'info');
+        }
+        
+        function useTemplate(name) {
+            const templates = {
+                'debian-minimal': 'Create a minimal Debian system',
+                'ubuntu-server': 'Create an Ubuntu server with SSH, curl, and vim',
+                'debian-python': 'Create Debian with Python development environment',
+                'alpine-minimal': 'Create an ultra-minimal Alpine Linux',
+                'docker-host': 'Create a system with Docker support',
+                'web-server': 'Create a web server with Nginx and Python'
+            };
+            
+            messageInput.value = templates[name] || name;
+            messageInput.focus();
+        }
+        
+        function useExample(example) {
+            const examples = {
+                'python': 'Create Debian with Python 3 and SSH server',
+                'docker': 'Create Ubuntu with Docker and Docker Compose',
+                'web': 'Create Debian with Nginx and Node.js'
+            };
+            
+            messageInput.value = examples[example] || example;
+            messageInput.focus();
+        }
+        
+        function addMessage(content, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message message-${type}`;
+            msgDiv.innerHTML = `
+                <span class="message-avatar">${type === 'user' ? '👤' : '🤖'}</span>
+                <div class="message-content">${content}</div>
+                <div class="message-time">${new Date().toLocaleTimeString()}</div>
+            `;
+            messagesContainer.appendChild(msgDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'message message-bot';
+            typingDiv.innerHTML = `
+                <span class="message-avatar">🤖</span>
+                <div class="typing">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function removeTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+        
+        function addTerminalLine(text, type) {
+            const line = document.createElement('div');
+            line.className = `terminal-line terminal-${type}`;
+            line.textContent = text;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+    </script>
+</body>
+</html>
